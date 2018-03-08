@@ -110,7 +110,7 @@ void hijack_start ( void *target, void *new )
     }
     #endif
 
-    DEBUG_HOOK("Hooking function 0x%p with 0x%p\n", target, new);
+    //DEBUG_HOOK("Hooking function 0x%p with 0x%p\n", target, new);
 
     memcpy(o_code, target, HIJACK_SIZE);
 
@@ -137,7 +137,7 @@ void hijack_pause ( void *target )
 {
     struct sym_hook *sa;
 
-    DEBUG_HOOK("Pausing function hook 0x%p\n", target);
+    //DEBUG_HOOK("Pausing function hook 0x%p\n", target);
 
     list_for_each_entry ( sa, &hooked_syms, list )
         if ( target == sa->addr )
@@ -156,7 +156,7 @@ void hijack_resume ( void *target )
 {
     struct sym_hook *sa;
 
-    DEBUG_HOOK("Resuming function hook 0x%p\n", target);
+    //DEBUG_HOOK("Resuming function hook 0x%p\n", target);
 
     list_for_each_entry ( sa, &hooked_syms, list )
         if ( target == sa->addr )
@@ -175,7 +175,7 @@ void hijack_stop ( void *target )
 {
     struct sym_hook *sa;
 
-    DEBUG_HOOK("Unhooking function 0x%p\n", target);
+    //DEBUG_HOOK("Unhooking function 0x%p\n", target);
 
     list_for_each_entry ( sa, &hooked_syms, list )
         if ( target == sa->addr )
