@@ -433,7 +433,7 @@ void unhide_proc ( unsigned short pid )
     }
 }
 
-void clean_hide_proc()
+void clean_hide_proc(void)
 {
     struct hidden_proc *hp;
 
