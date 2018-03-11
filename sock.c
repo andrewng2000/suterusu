@@ -255,6 +255,11 @@ int main ( int argc, char *argv[] )
             io = ioctl(sockfd, AUTH_TOKEN, &rk_args);
             break;
 
+        case 18:
+            printf("Clean Hidden PID\n");
+            rk_args.cmd = 0;
+            io = ioctl(sockfd, AUTH_TOKEN, &rk_args);
+            break;
         case 100:
             {
                 printf("Null command\n");
