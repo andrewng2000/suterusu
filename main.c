@@ -995,7 +995,9 @@ static long n_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned long 
                     clean_hide_proc();
 		
                 }
-            default:
+		break;
+            
+	    default:
                 break;
         }
 
